@@ -1,0 +1,162 @@
+# ====================
+# Skins Configuration
+# ====================
+# This file defines custom skins that can be applied to pouches.
+# Each pouch type can have multiple skin options for players to purchase and use.
+
+skin_shop:
+  # ===== CARDAGER POUCH SKINS =====
+  # Skins for the card collector pouch
+  cardager_pouch:
+    # Golden Cardager skin
+    golden_cardager:
+      # HeadDatabase ID (https://minecraft-heads.com/)
+      hdb_id: "12345"  # Replace with actual HeadDatabase ID
+
+      # Display name shown in GUI and tooltips
+      name: "&6Golden Cardager"
+
+      # Description shown in the skin's tooltip
+      lore:
+        - "&7A luxurious golden pouch"
+        - "&7for your card collection"
+
+      # Cost to purchase this skin
+      cost:
+        # Can be vanilla material or custom item
+        item: "custom:fruitster_token"
+        # Amount required
+        amount: 5
+
+    # Crystal Cardager skin
+    crystal_cardager:
+      hdb_id: "67890"  # Replace with actual HeadDatabase ID
+      name: "&bCrystal Cardager"
+      lore:
+        - "&7A beautiful crystal pouch"
+        - "&7that sparkles in the light"
+      cost:
+        item: "DIAMOND"
+        amount: 10
+
+    # Obsidian Cardager skin
+    obsidian_cardager:
+      hdb_id: "13579"  # Replace with actual HeadDatabase ID
+      name: "&8Obsidian Cardager"
+      lore:
+        - "&7A dark obsidian pouch"
+        - "&7for the serious collector"
+      cost:
+        item: "OBSIDIAN"
+        amount: 16
+
+  # ===== BUILDER'S POUCH SKINS =====
+  # Skins for the building materials pouch
+  builder_pouch:
+    # Wooden Toolbox skin
+    wooden_toolbox:
+      hdb_id: "24680"  # Replace with actual HeadDatabase ID
+      name: "&6Wooden Toolbox"
+      lore:
+        - "&7A simple wooden toolbox"
+        - "&7for your building materials"
+      cost:
+        item: "OAK_LOG"
+        amount: 32
+
+    # Steel Toolbox skin
+    steel_toolbox:
+      hdb_id: "13579"  # Replace with actual HeadDatabase ID
+      name: "&7Steel Toolbox"
+      lore:
+        - "&7A sturdy steel toolbox"
+        - "&7built to last"
+      cost:
+        item: "IRON_INGOT"
+        amount: 20
+
+    # Diamond-Studded skin
+    diamond_toolbox:
+      hdb_id: "97531"  # Replace with actual HeadDatabase ID
+      name: "&bDiamond Toolbox"
+      lore:
+        - "&7A premium toolbox with"
+        - "&7diamond reinforcements"
+      cost:
+        item: "DIAMOND"
+        amount: 5
+
+  # ===== TOKEN POUCH SKINS =====
+  # Skins for the currency pouch
+  token_pouch:
+    # Royal Treasury skin
+    royal_treasury:
+      hdb_id: "97531"  # Replace with actual HeadDatabase ID
+      name: "&eRoyal Treasury"
+      lore:
+        - "&7A pouch fit for royalty"
+        - "&7perfect for your valuable tokens"
+      cost:
+        item: "GOLD_INGOT"
+        amount: 16
+
+    # Magic Wallet skin
+    magic_wallet:
+      hdb_id: "86420"  # Replace with actual HeadDatabase ID
+      name: "&dMagic Wallet"
+      lore:
+        - "&7A magical wallet that seems"
+        - "&7bigger on the inside"
+      cost:
+        item: "custom:fruitster_token"
+        amount: 10
+
+    # Ender Bank skin
+    ender_bank:
+      hdb_id: "12321"  # Replace with actual HeadDatabase ID
+      name: "&5Ender Bank"
+      lore:
+        - "&7Stores your valuables"
+        - "&7in a pocket dimension"
+      cost:
+        item: "ENDER_PEARL"
+        amount: 8
+
+  # ===== RESOURCE POUCH SKINS =====
+  # Skins for the mining resources pouch
+  resource_pouch:
+    # Miner's Backpack skin
+    miners_backpack:
+      hdb_id: "34567"  # Replace with actual HeadDatabase ID
+      name: "&7Miner's Backpack"
+      lore:
+        - "&7A rugged backpack for"
+        - "&7carrying mining resources"
+      cost:
+        item: "IRON_PICKAXE"
+        amount: 1
+
+    # Gem Satchel skin
+    gem_satchel:
+      hdb_id: "45678"  # Replace with actual HeadDatabase ID
+      name: "&dGem Satchel"
+      lore:
+        - "&7A refined satchel for"
+        - "&7your precious gemstones"
+      cost:
+        item: "DIAMOND"
+        amount: 3
+
+    # Dragon Hoard skin
+    dragon_hoard:
+      hdb_id: "56789"  # Replace with actual HeadDatabase ID
+      name: "&6Dragon Hoard"
+      lore:
+        - "&7A mystical treasure chest"
+        - "&7worthy of a dragon's collection"
+      cost:
+        item: "GOLD_BLOCK"
+        amount: 2
+
+# You can add more pouch skins below
+# Each pouch type needs its own section with unique skin IDs

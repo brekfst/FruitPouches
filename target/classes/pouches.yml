@@ -1,0 +1,443 @@
+# =======================
+# Pouches Configuration
+# =======================
+# This file defines all pouches available in the plugin.
+# Each pouch has its own configuration for appearance, functionality and permissions.
+
+pouches:
+  # ========== CARDAGER POUCH ==========
+  # This pouch is designed for collecting and organizing card items
+  cardager_pouch:
+    # Display name shown in GUI and messages (supports color codes)
+    display: "&eCardager Pouch"
+
+    # Base material type (used if HeadDatabase is unavailable)
+    material: SHULKER_BOX
+
+    # HeadDatabase ID for custom appearance (leave empty to use material)
+    # Get IDs from https://minecraft-heads.com/
+    hdb_id: "12345"  # Replace with a valid HeadDatabase ID
+
+    # How many slots this pouch has (max items it can hold)
+    slots: 27
+
+    # How many enchantments this pouch can have
+    enchantment_slots: 3
+
+    # Pickup settings - what items this pouch collects
+    pickup:
+      # Items this pouch will collect
+      # Use vanilla material names or custom items with "custom:" prefix
+      items:
+        - "custom:cardager_common"
+        - "custom:cardager_rare"
+        - "custom:cardager_epic"
+
+      # Items to specifically exclude from pickup
+      # Useful for broader categories with exceptions
+      exclude:
+        - "PAPER"  # Don't pick up regular paper
+
+      # Conditions that must be met for pickup to work
+      conditions:
+        - world: skyblock_main  # Only works in this world
+        - permission: fruitpouch.cardager  # Player needs this permission
+
+    # GUI configuration - how the pouch interface looks
+    gui:
+      # Layout type: "simple", "categorized", or "paged"
+      # simple: Basic grid of items
+      # categorized: Items organized by categories with tabs
+      # paged: Multiple pages with navigation buttons
+      layout: categorized
+
+      # Categories for categorized layout
+      # Each category creates a tab in the GUI
+      categories:
+        - name: "Common Cards"  # Category name
+          filter: "custom:cardager_common"  # What items to show
+          icon: WHITE_WOOL  # Icon for category tab
+
+        - name: "Rare Cards"
+          filter: "custom:cardager_rare"
+          icon: BLUE_WOOL
+
+        - name: "Epic Cards"
+          filter: "custom:cardager_epic"
+          icon: PURPLE_WOOL
+
+      # Custom GUI buttons
+      # These appear at specific slots in the GUI
+      buttons:
+        - slot: 47  # Bottom row, position 2
+          action: sort_rarity  # What happens when clicked
+          icon: COMPASS  # Button appearance
+          name: "&eSort by Rarity"  # Button name
+          lore:  # Button description
+            - "&7Click to sort cards by rarity"
+
+        - slot: 49  # Bottom row, center
+          action: merge  # Triggers merge action defined below
+          icon: ANVIL
+          name: "&eMerge Cards"
+          lore:
+            - "&7Click to merge 25 common cards"
+            - "&7into 1 card pack"
+
+    # What happens when the pouch is full and tries to collect more
+    # Options: "inventory", "drop", or "sell"
+    overflow: inventory
+
+    # Special actions this pouch can perform
+    actions:
+      # Merge action - combines items into something new
+      - merge:
+          threshold: 25  # How many items needed
+          input: "custom:cardager_common"  # Item to consume
+          output: "custom:cardager_pack"  # Item to create
+          message: "&aMerged 25 common cards into a card pack!"  # Success message
+
+    # Whether to track stats for this pouch
+    stats: true
+
+    # Upgrade levels
+    # Each level improves the pouch's capabilities
+    upgrades:
+      # Level 1 upgrade
+      - level: 1
+        slots: 54  # Increased capacity
+        enchantment_slots: 1  # Enchantment capacity
+        cost:  # What player needs to pay
+          item: DIAMOND
+          amount: 10
+
+      # Level 2 upgrade
+      - level: 2
+        slots: 81  # Maximum capacity (9x9)
+        enchantment_slots: 2
+        cost:
+          item: "custom:fruitster_token"  # Using custom item as currency
+          amount: 20
+
+    # Permission nodes for this pouch
+    permissions:
+      use: fruitpouch.cardager.use  # Permission to use the pouch
+      upgrade: fruitpouch.cardager.upgrade  # Permission to upgrade
+
+  # ========== BUILDER'S POUCH ==========
+  # This pouch collects building materials for construction
+  builder_pouch:
+    display: "&6Builder's Pouch"
+    material: SHULKER_BOX
+    hdb_id: "67890"  # Replace with a valid HeadDatabase ID
+    slots: 54
+    enchantment_slots: 2
+
+    pickup:
+      # List specific materials (exact Minecraft names)
+      # Each material must be the exact name from Minecraft
+      items:
+        # Concrete blocks
+        - "WHITE_CONCRETE"
+        - "ORANGE_CONCRETE"
+        - "MAGENTA_CONCRETE"
+        - "LIGHT_BLUE_CONCRETE"
+        - "YELLOW_CONCRETE"
+        - "LIME_CONCRETE"
+        - "PINK_CONCRETE"
+        - "GRAY_CONCRETE"
+        - "LIGHT_GRAY_CONCRETE"
+        - "CYAN_CONCRETE"
+        - "PURPLE_CONCRETE"
+        - "BLUE_CONCRETE"
+        - "BROWN_CONCRETE"
+        - "GREEN_CONCRETE"
+        - "RED_CONCRETE"
+        - "BLACK_CONCRETE"
+
+        # Wool blocks
+        - "WHITE_WOOL"
+        - "ORANGE_WOOL"
+        - "MAGENTA_WOOL"
+        - "LIGHT_BLUE_WOOL"
+        - "YELLOW_WOOL"
+        - "LIME_WOOL"
+        - "PINK_WOOL"
+        - "GRAY_WOOL"
+        - "LIGHT_GRAY_WOOL"
+        - "CYAN_WOOL"
+        - "PURPLE_WOOL"
+        - "BLUE_WOOL"
+        - "BROWN_WOOL"
+        - "GREEN_WOOL"
+        - "RED_WOOL"
+        - "BLACK_WOOL"
+
+        # Glass blocks
+        - "GLASS"
+        - "WHITE_STAINED_GLASS"
+        - "ORANGE_STAINED_GLASS"
+        - "MAGENTA_STAINED_GLASS"
+        - "LIGHT_BLUE_STAINED_GLASS"
+        - "YELLOW_STAINED_GLASS"
+        - "LIME_STAINED_GLASS"
+        - "PINK_STAINED_GLASS"
+        - "GRAY_STAINED_GLASS"
+        - "LIGHT_GRAY_STAINED_GLASS"
+        - "CYAN_STAINED_GLASS"
+        - "PURPLE_STAINED_GLASS"
+        - "BLUE_STAINED_GLASS"
+        - "BROWN_STAINED_GLASS"
+        - "GREEN_STAINED_GLASS"
+        - "RED_STAINED_GLASS"
+        - "BLACK_STAINED_GLASS"
+
+      # Materials to specifically exclude
+      exclude:
+        - "COBBLESTONE"  # Don't pick up basic building blocks
+        - "OAK_LOG"
+        - "SPRUCE_LOG"
+        - "BIRCH_LOG"
+        - "JUNGLE_LOG"
+        - "ACACIA_LOG"
+        - "DARK_OAK_LOG"
+
+      # Conditions for pickup
+      conditions:
+        - permission: fruitpouch.builder  # Require this permission
+
+    # Using a simpler GUI layout for this pouch
+    gui:
+      layout: simple  # Just shows items in a grid
+
+      # Custom buttons for this layout
+      buttons:
+        - slot: 47  # Bottom left area
+          action: sort_amount  # Sort by stack size
+          icon: HOPPER
+          name: "&eSort by Amount"
+          lore:
+            - "&7Click to sort blocks by quantity"
+
+        - slot: 51  # Bottom right area
+          action: withdraw_all  # New action to empty the pouch
+          icon: CHEST
+          name: "&eWithdraw All"
+          lore:
+            - "&7Click to withdraw all blocks"
+
+    # Drop items on the ground when pouch is full
+    overflow: drop
+
+    # Enable stats tracking
+    stats: true
+
+    # Permission nodes
+    permissions:
+      use: fruitpouch.builder.use
+      upgrade: fruitpouch.builder.upgrade
+
+  # ========== TOKEN POUCH ==========
+  # This pouch collects currency and special items
+  token_pouch:
+    display: "&bToken Pouch"
+    material: SHULKER_BOX
+    hdb_id: "23456"  # Replace with a valid HeadDatabase ID
+    slots: 18
+    enchantment_slots: 3
+
+    pickup:
+      # Only pick up custom currency items
+      items:
+        - "custom:fruitster_token"  # Server currency
+        - "custom:vote_key"  # Voting rewards
+
+      # No exclusions needed
+      exclude: []
+
+      # Require permission
+      conditions:
+        - permission: fruitpouch.token
+
+    # Use paged layout for browsing large collections
+    gui:
+      layout: paged
+
+      # Custom buttons
+      buttons:
+        - slot: 49  # Bottom center
+          action: transfer  # Transfer items to another pouch
+          icon: ENDER_CHEST
+          name: "&eTransfer to Builder's Pouch"
+          lore:
+            - "&7Click to transfer tokens"
+            - "&7to your Builder's Pouch"
+
+    # Sell items when pouch is full (requires Vault)
+    overflow: sell
+
+    # Special actions
+    actions:
+      # Transfer action - moves items to another pouch
+      - transfer:
+          target: builder_pouch  # Target pouch ID
+          items:  # What items to transfer
+            - "custom:fruitster_token"
+          message: "&aTransferred tokens to Builder's Pouch!"
+
+    # Enable stats
+    stats: true
+
+    # Permissions
+    permissions:
+      use: fruitpouch.token.use
+      upgrade: fruitpouch.token.upgrade
+
+  # ========== RESOURCE POUCH ==========
+  # This pouch collects mining resources and materials
+  resource_pouch:
+    display: "&aResource Pouch"
+    material: SHULKER_BOX
+    hdb_id: "34567"  # Replace with a valid HeadDatabase ID
+    slots: 36
+    enchantment_slots: 2
+
+    pickup:
+      # Pick up mining resources
+      items:
+        # Ores
+        - "COAL_ORE"
+        - "DEEPSLATE_COAL_ORE"
+        - "IRON_ORE"
+        - "DEEPSLATE_IRON_ORE"
+        - "COPPER_ORE"
+        - "DEEPSLATE_COPPER_ORE"
+        - "GOLD_ORE"
+        - "DEEPSLATE_GOLD_ORE"
+        - "REDSTONE_ORE"
+        - "DEEPSLATE_REDSTONE_ORE"
+        - "EMERALD_ORE"
+        - "DEEPSLATE_EMERALD_ORE"
+        - "LAPIS_ORE"
+        - "DEEPSLATE_LAPIS_ORE"
+        - "DIAMOND_ORE"
+        - "DEEPSLATE_DIAMOND_ORE"
+
+        # Processed materials
+        - "COAL"
+        - "RAW_IRON"
+        - "IRON_INGOT"
+        - "RAW_COPPER"
+        - "COPPER_INGOT"
+        - "RAW_GOLD"
+        - "GOLD_INGOT"
+        - "REDSTONE"
+        - "EMERALD"
+        - "LAPIS_LAZULI"
+        - "DIAMOND"
+
+      # Exclude cobblestone and stone variants
+      exclude:
+        - "STONE"
+        - "COBBLESTONE"
+        - "ANDESITE"
+        - "DIORITE"
+        - "GRANITE"
+
+      # Pick up only in mining worlds
+      conditions:
+        - world: skyblock_mine  # Example mining world
+        - permission: fruitpouch.resource
+
+    # Use categorized layout with ore types
+    gui:
+      layout: categorized
+
+      # Organize by resource type
+      categories:
+        - name: "Ores"
+          filter: "*_ORE"  # Wildcard for all ore types
+          icon: DIAMOND_ORE
+
+        - name: "Raw Materials"
+          filter: "RAW_*"  # Wildcard for raw materials
+          icon: RAW_IRON
+
+        - name: "Processed"
+          filter: "*_INGOT"  # Wildcard for ingots
+          icon: IRON_INGOT
+
+        - name: "Gems"  # Materials that don't fit other categories
+          icon: DIAMOND
+          filter: "DIAMOND"  # You can list multiple items here
+
+      # Sorting and conversion buttons
+      buttons:
+        - slot: 46
+          action: sort_type
+          icon: COMPASS
+          name: "&eSort by Type"
+          lore:
+            - "&7Click to sort by material type"
+
+        - slot: 52
+          action: convert  # Convert raw materials to processed
+          icon: FURNACE
+          name: "&eAuto-Smelt"
+          lore:
+            - "&7Click to convert raw materials"
+            - "&7into processed resources"
+            - "&c(Requires Auto-Smelt enchantment)"
+
+    # Items go to inventory when full
+    overflow: inventory
+
+    # Convert raw materials to ingots
+    actions:
+      - convert:
+          input: "RAW_IRON"
+          input_amount: 1
+          output: "IRON_INGOT"
+          output_amount: 1
+          message: "&aSmelted raw iron into ingot!"
+
+      - convert:
+          input: "RAW_COPPER"
+          input_amount: 1
+          output: "COPPER_INGOT"
+          output_amount: 1
+          message: "&aSmelted raw copper into ingot!"
+
+      - convert:
+          input: "RAW_GOLD"
+          input_amount: 1
+          output: "GOLD_INGOT"
+          output_amount: 1
+          message: "&aSmelted raw gold into ingot!"
+
+    # Track stats
+    stats: true
+
+    # Multiple upgrade levels
+    upgrades:
+      - level: 1
+        slots: 54
+        enchantment_slots: 2
+        cost:
+          item: IRON_BLOCK
+          amount: 5
+
+      - level: 2
+        slots: 72
+        enchantment_slots: 3
+        cost:
+          item: DIAMOND_BLOCK
+          amount: 3
+
+    # Permissions
+    permissions:
+      use: fruitpouch.resource.use
+      upgrade: fruitpouch.resource.upgrade
+
+# You can add more pouches below with similar structures
+# Each pouch needs a unique ID as its section name

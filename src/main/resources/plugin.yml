@@ -1,0 +1,38 @@
+name: FruitPouches
+version: '1.0-SNAPSHOT'
+main: com.brekfst.fruitPouches.FruitPouches
+api-version: '1.21'
+description: Flexible, admin-configurable system for players to use pouches that collect, store, and organize items
+authors: [brekfst]
+depend: [HeadDatabase]
+softdepend: [Vault]
+commands:
+  fruitpouch:
+    description: Main command for FruitPouches plugin
+    usage: /fruitpouch <subcommand> [args]
+    aliases: [fp]
+permissions:
+  fruitpouch.admin:
+    description: Access to all FruitPouches admin commands
+    default: op
+  fruitpouch.use:
+    description: Allows players to use pouches
+    default: true
+  fruitpouch.upgrade:
+    description: Allows players to upgrade pouches
+    default: true
+  fruitpouch.skin:
+    description: Allows players to use skin shop
+    default: true
+  fruitpouch.give:
+    description: Allows giving pouches to players
+    default: op
+  fruitpouch.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+  fruitpouch.saveitem:
+    description: Allows saving custom items
+    default: op
+  fruitpouch.stats:
+    description: Allows viewing pouch statistics
+    default: op

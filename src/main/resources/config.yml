@@ -1,0 +1,138 @@
+# ===========================
+# FruitPouches Configuration
+# ===========================
+# This is the main configuration file for FruitPouches plugin.
+# Here you can configure general settings, performance options, and defaults.
+
+# Debug mode - set to true for verbose logging in the console
+# This helps when troubleshooting item pickup issues or other problems
+debug: true
+
+# General settings - core functionality of the plugin
+general:
+  # Default pickup range in blocks
+  # This is how far away players can be from items to pick them up automatically
+  pickup-range: 3.0
+
+  # Should items be picked up automatically when they're in range
+  # If false, players need to walk over items like normal
+  auto-pickup: true
+
+  # Pickup delay in ticks (20 ticks = 1 second)
+  # Minimum time between auto-pickup attempts
+  pickup-delay: 0
+
+  # Show pickup messages to players when items are collected
+  # Set to false if you don't want chat messages for each pickup
+  pickup-messages: true
+
+  # Material patterns to use in pouch configurations
+  # These are convenience groups for commonly used materials
+  material-patterns:
+    # All wool colors for easy reference
+    all_wool: [
+      "WHITE_WOOL", "ORANGE_WOOL", "MAGENTA_WOOL", "LIGHT_BLUE_WOOL",
+      "YELLOW_WOOL", "LIME_WOOL", "PINK_WOOL", "GRAY_WOOL",
+      "LIGHT_GRAY_WOOL", "CYAN_WOOL", "PURPLE_WOOL", "BLUE_WOOL",
+      "BROWN_WOOL", "GREEN_WOOL", "RED_WOOL", "BLACK_WOOL"
+    ]
+    # All concrete colors
+    all_concrete: [
+      "WHITE_CONCRETE", "ORANGE_CONCRETE", "MAGENTA_CONCRETE", "LIGHT_BLUE_CONCRETE",
+      "YELLOW_CONCRETE", "LIME_CONCRETE", "PINK_CONCRETE", "GRAY_CONCRETE",
+      "LIGHT_GRAY_CONCRETE", "CYAN_CONCRETE", "PURPLE_CONCRETE", "BLUE_CONCRETE",
+      "BROWN_CONCRETE", "GREEN_CONCRETE", "RED_CONCRETE", "BLACK_CONCRETE"
+    ]
+    # All glass types
+    all_glass: [
+      "GLASS", "WHITE_STAINED_GLASS", "ORANGE_STAINED_GLASS", "MAGENTA_STAINED_GLASS",
+      "LIGHT_BLUE_STAINED_GLASS", "YELLOW_STAINED_GLASS", "LIME_STAINED_GLASS",
+      "PINK_STAINED_GLASS", "GRAY_STAINED_GLASS", "LIGHT_GRAY_STAINED_GLASS",
+      "CYAN_STAINED_GLASS", "PURPLE_STAINED_GLASS", "BLUE_STAINED_GLASS",
+      "BROWN_STAINED_GLASS", "GREEN_STAINED_GLASS", "RED_STAINED_GLASS", "BLACK_STAINED_GLASS"
+    ]
+    # All log types
+    all_logs: [
+      "OAK_LOG", "SPRUCE_LOG", "BIRCH_LOG", "JUNGLE_LOG",
+      "ACACIA_LOG", "DARK_OAK_LOG", "CHERRY_LOG", "MANGROVE_LOG"
+    ]
+
+# Data management - how player data is stored and backed up
+data:
+  # Storage type: 'yml' or 'sqlite'
+  # YML is simpler but SQLite might be better for larger servers
+  storage-type: 'yml'
+
+  # How often to save player data (in seconds)
+  # Lower values are safer but could impact performance
+  save-interval: 300
+
+  # Enable automatic backups of player data
+  enable-backups: true
+
+  # How often to create backups (in minutes)
+  backup-interval: 60
+
+# Performance settings - tune these for your server
+performance:
+  # Maximum items to process per tick
+  # Lower values reduce lag but slow down processing
+  max-items-per-tick: 20
+
+  # Use asynchronous processing when possible
+  # This can improve performance but may cause issues on some servers
+  use-async: true
+
+  # Batch size for async operations
+  # How many operations to perform in each async batch
+  async-batch-size: 50
+
+# GUI settings - customize the pouch interfaces
+gui:
+  # Close GUI on item pickup/removal
+  # If true, the GUI will close when an item is taken out
+  close-on-action: false
+
+  # Sound to play when opening GUI
+  # Must be a valid Minecraft sound name
+  open-sound: BLOCK_CHEST_OPEN
+
+  # Sound to play when closing GUI
+  close-sound: BLOCK_CHEST_CLOSE
+
+  # Sound to play on successful action
+  success-sound: ENTITY_PLAYER_LEVELUP
+
+  # Sound to play on failed action
+  error-sound: ENTITY_VILLAGER_NO
+
+# Overflow handling - what happens when a pouch is full
+overflow:
+  # Default overflow mode: 'inventory', 'drop', or 'sell'
+  # inventory: Items go to player inventory
+  # drop: Items drop on the ground
+  # sell: Items are sold for money (requires Vault)
+  default-mode: 'inventory'
+
+  # Sound to play when overflow occurs
+  sound: BLOCK_NOTE_BLOCK_BELL
+
+  # Show particles when overflow occurs
+  show-particles: true
+
+  # Particle type for overflow
+  # Must be a valid Minecraft particle name
+  particle-type: VILLAGER_ANGRY
+
+# Vault integration settings (only if Vault is installed)
+economy:
+  # Enable economy features
+  enabled: true
+
+  # Currency format (e.g. "$%.2f")
+  # How money amounts are displayed to players
+  format: "$%.2f"
+
+  # Default sell value for items (if not specified)
+  # How much items are worth when sold via overflow
+  default-sell-value: 1.0

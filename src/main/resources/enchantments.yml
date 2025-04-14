@@ -1,0 +1,127 @@
+# ==========================
+# Enchantments Configuration
+# ==========================
+# This file defines all enchantments that can be applied to pouches.
+# Each enchantment can have different levels and effects.
+
+enchantments:
+  # ===== CAPACITY ENCHANTMENT =====
+  # Increases the pouch's storage capacity
+  capacity:
+    # Display name shown in GUI and tooltips
+    display: "Capacity"
+
+    # Description of what this enchantment does
+    description: "Increases pouch storage capacity"
+
+    # Maximum level this enchantment can reach
+    max_level: 3
+
+    # Cost to apply this enchantment
+    cost:
+      # Item required (vanilla or custom)
+      item: DIAMOND
+
+      # Base amount needed
+      amount: 5
+
+      # Cost multiplier per level
+      # Level 1: 5 diamonds
+      # Level 2: 5 * 2 = 10 diamonds
+      # Level 3: 10 * 2 = 20 diamonds
+      multiplier: 2
+
+    # Effect of this enchantment
+    effect:
+      # Adds slots to the pouch per level
+      slots: 9  # +9 slots per level
+
+  # ===== EFFICIENCY ENCHANTMENT =====
+  # Increases the pickup range of the pouch
+  efficiency:
+    display: "Efficiency"
+    description: "Increases pickup range"
+    max_level: 2
+    cost:
+      item: REDSTONE
+      amount: 10
+      multiplier: 1.5
+    effect:
+      # Adds this many blocks to pickup range per level
+      pickup_range: 1.0
+
+  # ===== MAGNET ENCHANTMENT =====
+  # Attracts items from further away
+  magnet:
+    display: "Magnet"
+    description: "Attracts items from further away"
+    max_level: 3
+    cost:
+      item: IRON_INGOT
+      amount: 8
+      multiplier: 2
+    effect:
+      # How fast items are pulled (blocks per tick)
+      attract_speed: 0.1
+
+      # Additional attraction range in blocks
+      attract_range: 1.0
+
+  # ===== FILTER ENCHANTMENT =====
+  # Allows picking up more item types
+  filter:
+    display: "Filter"
+    description: "Lets you pick up more item types"
+    max_level: 1
+    cost:
+      item: HOPPER
+      amount: 2
+      multiplier: 1
+    effect:
+      # Number of additional item types that can be picked up
+      additional_filters: 3
+
+  # ===== AUTO SORT ENCHANTMENT =====
+  # Automatically sorts items in the pouch
+  auto_sort:
+    display: "Auto Sort"
+    description: "Automatically sorts items in the pouch"
+    max_level: 1
+    cost:
+      item: COMPARATOR
+      amount: 5
+      multiplier: 1
+    effect:
+      # Enables auto-sorting when items are added
+      auto_sort: true
+
+  # ===== AUTO SMELT ENCHANTMENT =====
+  # Automatically smelts ore items as they're collected
+  auto_smelt:
+    display: "Auto Smelt"
+    description: "Smelts ores as you collect them"
+    max_level: 1
+    cost:
+      item: FURNACE
+      amount: 3
+      multiplier: 1
+    effect:
+      # Enables auto-smelting of items
+      auto_smelt: true
+
+  # ===== VOID TRASH ENCHANTMENT =====
+  # Automatically destroys unwanted items
+  void_trash:
+    display: "Void Trash"
+    description: "Destroys unwanted items automatically"
+    max_level: 1
+    cost:
+      item: LAVA_BUCKET
+      amount: 1
+      multiplier: 1
+    effect:
+      # Enables auto-voiding of items in the exclusion list
+      void_trash: true
+
+# You can add more enchantments below
+# Each enchantment needs a unique ID as its section name

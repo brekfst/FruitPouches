@@ -1,0 +1,115 @@
+# =========================
+# Custom Items Configuration
+# =========================
+# This file defines custom items that can be picked up by pouches.
+# Use /fruitpouch saveitem <id> to save a custom item from your hand.
+
+# Structure:
+# custom_items:
+#   item_id:
+#     material: MATERIAL_NAME    # The base Minecraft material
+#     display: "Item Name"       # Display name with color codes
+#     lore:                      # List of lore lines
+#       - "Line 1"
+#       - "Line 2"
+#     enchantments:              # List of enchantments in FORMAT: ENCHANT_NAME:LEVEL
+#       - "DURABILITY:1"
+#     flags:                     # Item flags to apply
+#       - "HIDE_ENCHANTS"
+#     nbt: {}                    # Custom NBT data (advanced)
+#     sell-value: 10.0           # Value when sold to server
+
+custom_items:
+  # Example: Fruitster Token
+  # This is a custom currency item for your server
+  fruitster_token:
+    material: SUNFLOWER
+    display: "&6Fruitster Token"
+    lore:
+      - "&7The official currency of Skyblock"
+      - "&eValue: &6★★★"
+    enchantments:
+      - "DURABILITY:1"
+    flags:
+      - "HIDE_ENCHANTS"
+      - "HIDE_ATTRIBUTES"
+    sell-value: 100.0
+
+  # Example: Common Card
+  # A collectible card with common rarity
+  cardager_common:
+    material: PAPER
+    display: "&fCommon Card"
+    lore:
+      - "&7A collectible card"
+      - "&7Rarity: &fCommon"
+      - ""
+      - "&8Right-click to view card details"
+    enchantments: []
+    flags: []
+    sell-value: 10.0
+
+  # Example: Rare Card
+  # A collectible card with rare rarity
+  cardager_rare:
+    material: PAPER
+    display: "&9Rare Card"
+    lore:
+      - "&7A collectible card"
+      - "&7Rarity: &9Rare"
+      - ""
+      - "&8Right-click to view card details"
+    enchantments:
+      - "DURABILITY:1"
+    flags:
+      - "HIDE_ENCHANTS"
+    sell-value: 50.0
+
+  # Example: Epic Card
+  # A collectible card with epic rarity
+  cardager_epic:
+    material: PAPER
+    display: "&5Epic Card"
+    lore:
+      - "&7A collectible card"
+      - "&7Rarity: &5Epic"
+      - ""
+      - "&8Right-click to view card details"
+    enchantments:
+      - "DURABILITY:1"
+    flags:
+      - "HIDE_ENCHANTS"
+    sell-value: 200.0
+
+  # Example: Card Pack
+  # Created by merging common cards together
+  cardager_pack:
+    material: BOOK
+    display: "&eCard Pack"
+    lore:
+      - "&7Contains random cards!"
+      - "&7Right-click to open"
+    enchantments:
+      - "DURABILITY:1"
+    flags:
+      - "HIDE_ENCHANTS"
+    sell-value: 300.0
+
+  # Example: Vote Key
+  # Reward for voting for the server
+  vote_key:
+    material: TRIPWIRE_HOOK
+    display: "&bVote Key"
+    lore:
+      - "&7Use at the voting crate"
+      - "&7to receive rewards!"
+    enchantments:
+      - "DURABILITY:1"
+      - "LUCK:1"
+    flags:
+      - "HIDE_ENCHANTS"
+    sell-value: 500.0
+
+  # Add your custom items below this line by using:
+  # /fruitpouch saveitem <id>
+  # while holding the item you want to save

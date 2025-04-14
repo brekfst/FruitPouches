@@ -1,0 +1,173 @@
+# ====================
+# Messages Configuration
+# ====================
+# This file contains all messages sent by the plugin.
+# You can customize these messages to match your server's style.
+#
+# Color codes:
+# &0 - Black        &6 - Gold
+# &1 - Dark Blue    &7 - Gray
+# &2 - Dark Green   &8 - Dark Gray
+# &3 - Dark Aqua    &9 - Blue
+# &4 - Dark Red     &a - Green
+# &5 - Dark Purple  &b - Aqua
+#                   &c - Red
+#                   &d - Light Purple
+#                   &e - Yellow
+#                   &f - White
+#
+# Formatting codes:
+# &k - Obfuscated   &n - Underline
+# &l - Bold         &o - Italic
+#                   &r - Reset
+
+# Prefix for all plugin messages
+prefix: "&8[&6Fruit&ePouches&8] "
+
+# General messages for commands and errors
+general:
+  # Message when plugin is reloaded
+  reload: "&aPlugin configuration reloaded successfully!"
+
+  # Message when player doesn't have permission
+  no-permission: "&cYou don't have permission to use this command."
+
+  # Message when command can only be used by players
+  player-only: "&cThis command can only be used by players."
+
+  # Message for invalid commands
+  invalid-command: "&cInvalid command. Use /fruitpouch help for a list of commands."
+
+  # Message for invalid pouch types
+  invalid-pouch: "&cInvalid pouch type: {pouch}."
+
+  # Message when player cannot be found
+  invalid-player: "&cPlayer {player} not found."
+
+  # Message for invalid upgrade levels
+  invalid-upgrade: "&cInvalid upgrade level: {level}."
+
+  # Message for invalid enchantments
+  invalid-enchantment: "&cInvalid enchantment: {enchantment}."
+
+  # Message for invalid amounts
+  invalid-amount: "&cInvalid amount: {amount}."
+
+# Messages for custom item management
+items:
+  # Message when an item is saved successfully
+  saved: "&aCustom item '{id}' saved successfully!"
+
+  # Message when trying to save with no item
+  invalid-item: "&cYou must be holding an item to save it."
+
+  # Message when item ID already exists
+  already-exists: "&cA custom item with ID '{id}' already exists. Use /fruitpouch saveitem {id} -f to overwrite."
+
+# Messages for pouch operations
+pouches:
+  # Message when giving a pouch to a player
+  give: "&aGave {amount}x {pouch} to {player}."
+
+  # Message when receiving a pouch
+  received: "&aYou received {amount}x {pouch}."
+
+  # Message when inventory is full
+  full-inventory: "&cYour inventory is full!"
+
+  # Message when pouch is full (overflow to inventory)
+  full-pouch: "&cPouch is full! Items went to your inventory."
+
+  # Message when pouch is full (overflow to ground)
+  full-pouch-drop: "&cPouch is full! Items were dropped at your feet."
+
+  # Message when pouch is full (overflow to sell)
+  full-pouch-sell: "&aPouch is full! Items were sold for {amount}."
+
+  # Message when pouch is locked
+  locked: "&cThis {pouch} is locked and cannot be moved."
+
+  # Message when picking up items
+  pickup: "&7[{pouch}&7] &aPicked up {amount}x {item}."
+
+# Messages for enchantment operations
+enchantments:
+  # Message when enchantment is applied
+  applied: "&aApplied {enchantment} {level} to your {pouch}."
+
+  # Message when enchantment is already at max level
+  max-level: "&cYour {pouch} already has the maximum level of {enchantment}."
+
+  # Message when pouch has no free enchantment slots
+  max-slots: "&cYour {pouch} doesn't have any free enchantment slots."
+
+  # Message when player cannot afford enchantment
+  cannot-afford: "&cYou cannot afford this enchantment. Required: {cost}."
+
+# Messages for upgrade operations
+upgrades:
+  # Message when pouch is upgraded
+  upgraded: "&aUpgraded your {pouch} to level {level}!"
+
+  # Message when pouch is already at maximum level
+  max-level: "&cYour {pouch} is already at maximum level."
+
+  # Message when player cannot afford upgrade
+  cannot-afford: "&cYou cannot afford this upgrade. Required: {cost}."
+
+  # Message when player doesn't have enough items
+  not-enough-items: "&cYou need {amount}x {item} to upgrade this pouch."
+
+  # Message when pouch must be upgraded in order
+  must-upgrade-in-order: "&cYou must upgrade your pouch one level at a time."
+
+# Messages for skin operations
+skins:
+  # Message when skin is applied
+  applied: "&aApplied {skin} skin to your {pouch}!"
+
+  # Message when skin is purchased
+  purchased: "&aYou purchased the {skin} skin for your {pouch}!"
+
+  # Message when player already owns skin
+  already-owned: "&cYou already own this skin."
+
+  # Message when player cannot afford skin
+  cannot-afford: "&cYou cannot afford this skin. Required: {cost}."
+
+  # Message when skin doesn't exist
+  invalid-skin: "&cInvalid skin: {skin}."
+
+# Messages for stats display
+stats:
+  # Header for stats message
+  header: "&6==== {pouch} Stats ===="
+
+  # Number of items collected
+  items-collected: "&eItems Collected: &f{amount}"
+
+  # Number of actions performed
+  actions-performed: "&eActions Performed: &f{amount}"
+
+  # Time of last use
+  last-used: "&eLast Used: &f{time}"
+
+# Messages for pouch actions
+actions:
+  # Message when items are sorted
+  sort: "&aSorted items by {type}."
+
+  # Message when items are merged
+  merge: "&aMerged {input_amount}x {input} into {output_amount}x {output}."
+
+  # Message when items are transferred
+  transfer: "&aTransferred {amount}x {item} to {target}."
+
+  # Message when items are converted
+  convert: "&aConverted {input_amount}x {input} into {output_amount}x {output}."
+
+  # Message when all items are withdrawn
+  withdraw-all: "&aWithdrew all items from the pouch."
+
+  # Message when items are auto-smelted
+  auto-smelt: "&aAuto-smelted {input} into {output}."
