@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;
@@ -133,6 +134,67 @@ public class PlayerDataManager extends DataManager {
                 plugin.getDebug().logException(e, "Failed to save player data for " + playerId);
             }
         });
+    }
+
+    /**
+     * Refresh all player pouches with updated configuration
+     * Called after a config reload to ensure all pouches use the latest settings
+     */
+    public void refreshAllPlayerPouches() {
+        plugin.getDebug().log("Refreshing all player pouch data with updated configurations...");
+
+        // Process all online players
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            UUID playerId = player.getUniqueId();
+            Map<String, Pouch> playerPouchData = playerPouches.get(playerId);
+
+            if (playerPouchData == null || playerPouchData.isEmpty()) {
+                continue;
+            }
+
+            // Get the player's inventory pouches to update them
+            boolean inventoryChanged = false;
+            for (int i = 0; i < player.getInventory().getSize(); i++) {
+                ItemStack item = player.getInventory().getItem(i);
+                if (item == null || item.getType().isAir()) {
+                    continue;
+                }
+
+                String pouchId = Pouch.getPouchIdFromItem(plugin, item);
+                if (pouchId == null) {
+                    continue;
+                }
+
+                // Get the updated pouch template
+                Pouch templatePouch = plugin.getPouchManager().getPouch(pouchId);
+                if (templatePouch == null) {
+                    continue; // This pouch type no longer exists in config
+                }
+
+                // Get the player-specific pouch data
+                Pouch playerPouch = playerPouchData.get(pouchId);
+                if (playerPouch == null) {
+                    continue;
+                }
+
+                // Update the player pouch with new configuration properties
+                // but keep player-specific data (contents, level, etc.)
+                playerPouch.updateFromTemplate(templatePouch);
+
+                // Update the item in the player's inventory
+                player.getInventory().setItem(i, playerPouch.toItemStack(plugin));
+                inventoryChanged = true;
+
+                plugin.getDebug().log("Updated pouch " + pouchId + " in " + player.getName() + "'s inventory");
+            }
+
+            // Update the player's inventory display if any pouches were updated
+            if (inventoryChanged) {
+                player.updateInventory();
+            }
+        }
+
+        plugin.getDebug().log("Player pouch refresh complete");
     }
 
     /**

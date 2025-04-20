@@ -39,6 +39,7 @@ public class FruitPouches extends JavaPlugin {
     private MessageUtils messageUtils;
     private ExecutorService asyncExecutor;
     private Debug debug;
+    private PriceManager priceManager; // New field for PriceManager
 
     @Override
     public void onEnable() {
@@ -52,9 +53,13 @@ public class FruitPouches extends JavaPlugin {
         createConfigFile("enchantments.yml");
         createConfigFile("messages.yml");
         createConfigFile("skins.yml");
+        createConfigFile("prices.yml"); // Add the new prices.yml file
 
         // Initialize debug mode
         debug = new Debug(this);
+
+        // Setup async executor for data operations
+        asyncExecutor = Executors.newFixedThreadPool(2);
 
         // Initialize managers
         configManager = new ConfigManager(this);
@@ -66,9 +71,7 @@ public class FruitPouches extends JavaPlugin {
         statsManager = new StatsManager(this);
         dataManager = new DataManager(this);
         messageUtils = new MessageUtils(this);
-
-        // Setup async executor for data operations
-        asyncExecutor = Executors.newFixedThreadPool(2);
+        priceManager = new PriceManager(this); // Initialize the PriceManager
 
         // Check for dependencies
         if (!setupDependencies()) {
@@ -214,5 +217,10 @@ public class FruitPouches extends JavaPlugin {
 
     public Debug getDebug() {
         return debug;
+    }
+
+    // New getter for PriceManager
+    public PriceManager getPriceManager() {
+        return priceManager;
     }
 }

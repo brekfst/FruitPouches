@@ -1,7 +1,6 @@
 package com.brekfst.fruitPouches.utils;
 
 import com.brekfst.fruitPouches.FruitPouches;
-import com.brekfst.fruitPouches.models.CustomItem;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -162,18 +161,7 @@ public class VaultHook {
      * @return The sell value
      */
     public double getSellValue(ItemStack item) {
-        // Check if it's a custom item
-        String customItemId = plugin.getCustomItemManager().matchCustomItem(item);
-
-        if (customItemId != null) {
-            CustomItem customItem = plugin.getCustomItemManager().getCustomItem(customItemId);
-
-            if (customItem != null) {
-                return customItem.getSellValue();
-            }
-        }
-
-        // Return default sell value for vanilla items
-        return plugin.getConfigManager().getMainConfig().getDouble("economy.default-sell-value", 1.0);
+        // Use PriceManager instead of checking custom items and default value
+        return plugin.getPriceManager().getPrice(item);
     }
 }

@@ -10,6 +10,7 @@ com\brekfst\fruitPouches\models\PouchAction.class
 com\brekfst\fruitPouches\utils\Debug.class
 com\brekfst\fruitPouches\config\PouchManager.class
 com\brekfst\fruitPouches\gui\SkinShopGUI.class
+com\brekfst\fruitPouches\config\PriceManager.class
 com\brekfst\fruitPouches\data\PlayerDataManager.class
 com\brekfst\fruitPouches\config\ConfigManager.class
 com\brekfst\fruitPouches\data\StatsManager.class

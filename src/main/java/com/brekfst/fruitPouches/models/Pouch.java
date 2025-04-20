@@ -35,7 +35,7 @@ public class Pouch {
     private final Set<String> pickupItems;
     private final Set<String> excludeItems;
     private final List<Map<String, String>> pickupConditions;
-    private final String guiLayout;
+    private String guiLayout;
     private final List<Map<String, Object>> guiCategories;
     private final List<Map<String, Object>> guiButtons;
     private final String overflowMode;
@@ -427,31 +427,32 @@ public class Pouch {
      * @return true if the item can be picked up
      */
     public boolean canPickup(FruitPouches plugin, ItemStack itemStack) {
-        if (itemStack == null) {
+        if (itemStack == null || itemStack.getType().isAir()) {
             return false;
         }
 
         String materialName = itemStack.getType().name();
 
-        // Debug logging to troubleshoot item pickup issues
+        // Print the debug information
         plugin.getDebug().log("Checking if pouch " + id + " can pick up item: " + materialName);
         plugin.getDebug().log("Exclude list: " + String.join(", ", excludeItems));
         plugin.getDebug().log("Pickup items list: " + String.join(", ", pickupItems));
 
-        // Check exclusions first
+        // First check exclusions
         if (excludeItems.contains(materialName)) {
             plugin.getDebug().log("Item is excluded: " + materialName);
             return false;
         }
 
-        // Check if this is a vanilla item in the pickup list
-        if (pickupItems.contains(materialName)) {
-            plugin.getDebug().log("Item is in pickup list: " + materialName);
-            return true;
-        }
-
-        // Check if this is a custom item in the pickup list
+        // Then check if it's directly in the pickup list
         for (String pickupItem : pickupItems) {
+            // Direct match with material name
+            if (pickupItem.equals(materialName)) {
+                plugin.getDebug().log("Item is in pickup list: " + materialName);
+                return true;
+            }
+
+            // Check for custom items
             if (pickupItem.startsWith("custom:")) {
                 String customItemId = pickupItem.substring(7);
                 CustomItem customItem = plugin.getCustomItemManager().getCustomItem(customItemId);
@@ -461,56 +462,40 @@ public class Pouch {
                     return true;
                 }
             }
-        }
 
-        // Check for wildcard patterns (like *_WOOL or CONCRETE*)
-        for (String pickupItem : pickupItems) {
+            // Check for wildcards
             if (pickupItem.contains("*")) {
+                // Remove the asterisk and check for pattern matches
                 String pattern = pickupItem.replace("*", "");
-                if ((pattern.startsWith("_") && materialName.endsWith(pattern)) ||
-                        (pattern.endsWith("_") && materialName.startsWith(pattern))) {
-                    plugin.getDebug().log("Item matches wildcard pattern: " + pickupItem);
-                    return true;
+
+                // Check different wildcard patterns:
+                // *SUFFIX (ends with)
+                if (pickupItem.startsWith("*") && !pickupItem.endsWith("*")) {
+                    if (materialName.endsWith(pattern)) {
+                        plugin.getDebug().log("Item matches wildcard pattern (ends with): " + pickupItem);
+                        return true;
+                    }
+                }
+                // PREFIX* (starts with)
+                else if (!pickupItem.startsWith("*") && pickupItem.endsWith("*")) {
+                    if (materialName.startsWith(pattern)) {
+                        plugin.getDebug().log("Item matches wildcard pattern (starts with): " + pickupItem);
+                        return true;
+                    }
+                }
+                // *CONTAINS* (contains)
+                else if (pickupItem.startsWith("*") && pickupItem.endsWith("*")) {
+                    String innerPattern = pattern.substring(0, pattern.length() - 1);
+                    if (materialName.contains(innerPattern)) {
+                        plugin.getDebug().log("Item matches wildcard pattern (contains): " + pickupItem);
+                        return true;
+                    }
                 }
             }
         }
 
         plugin.getDebug().log("Item does not match any pickup criteria: " + materialName);
         return false;
-    }
-
-    /**
-     * Check if pickup conditions are met for a player
-     *
-     * @param player The player to check
-     * @return true if the conditions are met
-     */
-    public boolean meetsPickupConditions(Player player) {
-        for (Map<String, String> condition : pickupConditions) {
-            // Check world condition
-            if (condition.containsKey("world") && !player.getWorld().getName().equals(condition.get("world"))) {
-                return false;
-            }
-
-            // Check permission condition
-            if (condition.containsKey("permission") && !player.hasPermission(condition.get("permission"))) {
-                return false;
-            }
-
-            // Check time condition
-            if (condition.containsKey("time")) {
-                String timeCondition = condition.get("time").toLowerCase();
-                long time = player.getWorld().getTime();
-
-                if (timeCondition.equals("day") && (time < 0 || time > 12000)) {
-                    return false;
-                } else if (timeCondition.equals("night") && (time >= 0 && time <= 12000)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     // In the Pouch.java class
@@ -578,6 +563,127 @@ public class Pouch {
 
         stats.incrementItemsCollected(initialAmount);
         stats.updateLastUsed();
+        return true;
+    }
+
+    /**
+     * Update this pouch from a template pouch (for configuration reloads)
+     * This keeps player-specific data but updates configuration properties
+     *
+     * @param template The template pouch with updated configuration
+     */
+    public void updateFromTemplate(Pouch template) {
+
+
+        // Update functional properties
+        this.slots = template.slots;
+        this.enchantmentSlots = template.enchantmentSlots;
+        this.pickupItems.clear();
+        this.pickupItems.addAll(template.pickupItems);
+        this.excludeItems.clear();
+        this.excludeItems.addAll(template.excludeItems);
+
+        // Update pickup conditions
+        this.pickupConditions.clear();
+        for (Map<String, String> condition : template.pickupConditions) {
+            this.pickupConditions.add(new HashMap<>(condition));
+        }
+
+        // Update GUI settings
+        this.guiLayout = template.guiLayout;
+
+        // Update GUI categories
+        this.guiCategories.clear();
+        for (Map<String, Object> category : template.guiCategories) {
+            this.guiCategories.add(new HashMap<>(category));
+        }
+
+        // Update GUI buttons
+        this.guiButtons.clear();
+        for (Map<String, Object> button : template.guiButtons) {
+            this.guiButtons.add(new HashMap<>(button));
+        }
+
+        // Update overflow mode
+        // No need to update overflowMode as it's part of the configuration
+
+        // Update actions
+        this.actions.clear();
+        for (PouchAction action : template.actions) {
+            this.actions.add(new PouchAction(action.getType(), new HashMap<>(action.getConfig())));
+        }
+
+        // Update upgrade settings
+        this.upgrades.clear();
+        for (PouchUpgrade upgrade : template.upgrades) {
+            this.upgrades.add(new PouchUpgrade(
+                    upgrade.getLevel(),
+                    upgrade.getSlots(),
+                    upgrade.getEnchantmentSlots(),
+                    new HashMap<>(upgrade.getCost())
+            ));
+        }
+
+        // Re-apply level defaults based on current level
+        applyLevelDefaults();
+    }
+
+    public boolean meetsPickupConditions(Player player, FruitPouches plugin) {
+        // If there are no conditions, always return true
+        if (pickupConditions.isEmpty()) {
+            plugin.getDebug().log("Pouch " + id + " has no pickup conditions, automatic pass");
+            return true;
+        }
+
+        // Check each condition
+        for (Map<String, String> condition : pickupConditions) {
+            plugin.getDebug().log("Checking  Checking condition for pouch " + id + ": " + condition);
+
+            // Skip empty conditions
+            if (condition.isEmpty()) {
+                plugin.getDebug().log("Empty condition - skipping");
+                continue;
+            }
+
+            // Check world condition
+            if (condition.containsKey("world") && !condition.get("world").isEmpty()) {
+                String worldName = condition.get("world");
+                plugin.getDebug().log("Checking world condition: " + worldName + " vs " + player.getWorld().getName());
+
+                if (!player.getWorld().getName().equals(worldName)) {
+                    plugin.getDebug().log("World condition failed: player is in " + player.getWorld().getName());
+                    return false;
+                }
+            }
+
+            // Check permission condition
+            if (condition.containsKey("permission") && !condition.get("permission").isEmpty()) {
+                String permission = condition.get("permission");
+                plugin.getDebug().log("Checking permission condition: " + permission);
+
+                if (!player.hasPermission(permission)) {
+                    plugin.getDebug().log("Permission condition failed: player doesn't have " + permission);
+                    return false;
+                }
+            }
+
+            // Check time condition
+            if (condition.containsKey("time") && !condition.get("time").isEmpty()) {
+                String timeCondition = condition.get("time").toLowerCase();
+                long time = player.getWorld().getTime();
+                plugin.getDebug().log("Checking time condition: " + timeCondition + " at time " + time);
+
+                if (timeCondition.equals("day") && (time < 0 || time > 12000)) {
+                    plugin.getDebug().log("Time condition failed: not day time");
+                    return false;
+                } else if (timeCondition.equals("night") && (time >= 0 && time <= 12000)) {
+                    plugin.getDebug().log("Time condition failed: not night time");
+                    return false;
+                }
+            }
+        }
+
+        plugin.getDebug().log("All conditions met (or skipped) for pouch " + id);
         return true;
     }
 
@@ -777,7 +883,7 @@ public class Pouch {
     }
 
     public Map<String, ItemStack> getContents() {
-        return new HashMap<>(this.contents);
+        return this.contents;
     }
 
     public void setContents(Map<String, ItemStack> contents) {

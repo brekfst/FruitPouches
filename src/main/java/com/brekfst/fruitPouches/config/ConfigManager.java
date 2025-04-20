@@ -6,7 +6,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -82,21 +85,45 @@ public class ConfigManager {
 
         if (!file.exists()) {
             plugin.saveResource(fileName, false);
+            plugin.getDebug().log("Created new configuration file: " + fileName + " (was missing)");
         }
 
-        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        configs.put(fileName, config);
+        // Force reload from disk instead of cache
+        try {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        plugin.getDebug().log("Reloaded configuration file: " + fileName);
+            // Also load the default config from the jar to get any missing values
+            if (plugin.getResource(fileName) != null) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
+                        new InputStreamReader(plugin.getResource(fileName), StandardCharsets.UTF_8));
+                config.setDefaults(defaultConfig);
+            }
+
+            configs.put(fileName, config);
+            plugin.getDebug().log("Reloaded configuration file: " + fileName);
+        } catch (Exception e) {
+            plugin.getDebug().logException(e, "Failed to reload configuration file: " + fileName);
+        }
     }
 
     /**
      * Reload all configuration files
      */
     public void reloadAllConfigs() {
-        for (String fileName : configs.keySet()) {
-            reloadConfig(fileName);
+        plugin.getDebug().log("Starting full configuration reload...");
+
+        // Reload the plugin's main config first
+        plugin.reloadConfig();
+        configs.put("config.yml", plugin.getConfig());
+
+        // Then reload all other config files
+        for (String fileName : new HashSet<>(configs.keySet())) {
+            if (!fileName.equals("config.yml")) {
+                reloadConfig(fileName);
+            }
         }
+
+        plugin.getDebug().log("Configuration reload complete.");
     }
 
     /**

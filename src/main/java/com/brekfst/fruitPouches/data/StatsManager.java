@@ -37,33 +37,54 @@ public class StatsManager extends DataManager {
         File file = new File(plugin.getDataFolder(), "data/stats.yml");
 
         if (!file.exists()) {
+            plugin.getDebug().log("Stats file does not exist, creating empty stats");
+            return;
+        }
+
+        // Check if the executor service is available
+        if (plugin.getAsyncExecutor() == null) {
+            plugin.getDebug().log("Async executor not available, loading stats synchronously");
+            loadStatsSync(file);
             return;
         }
 
         // Load async
         plugin.getAsyncExecutor().submit(() -> {
             try {
-                YamlConfiguration config = loadConfig(file);
-
-                for (String pouchId : config.getKeys(false)) {
-                    ConfigurationSection pouchSection = config.getConfigurationSection(pouchId);
-
-                    if (pouchSection != null) {
-                        Map<String, Integer> pouchStats = new HashMap<>();
-
-                        for (String key : pouchSection.getKeys(false)) {
-                            pouchStats.put(key, pouchSection.getInt(key));
-                        }
-
-                        globalStats.put(pouchId, pouchStats);
-                    }
-                }
-
-                plugin.getDebug().log("Loaded global stats for " + globalStats.size() + " pouches");
+                loadStatsSync(file);
             } catch (Exception e) {
-                plugin.getDebug().logException(e, "Failed to load global stats");
+                plugin.getDebug().logException(e, "Failed to load global stats asynchronously");
             }
         });
+    }
+
+    /**
+     * Load stats synchronously (helper method for both sync and async paths)
+     *
+     * @param file The stats file to load
+     */
+    private void loadStatsSync(File file) {
+        try {
+            YamlConfiguration config = loadConfig(file);
+
+            for (String pouchId : config.getKeys(false)) {
+                ConfigurationSection pouchSection = config.getConfigurationSection(pouchId);
+
+                if (pouchSection != null) {
+                    Map<String, Integer> pouchStats = new HashMap<>();
+
+                    for (String key : pouchSection.getKeys(false)) {
+                        pouchStats.put(key, pouchSection.getInt(key));
+                    }
+
+                    globalStats.put(pouchId, pouchStats);
+                }
+            }
+
+            plugin.getDebug().log("Loaded global stats for " + globalStats.size() + " pouches");
+        } catch (Exception e) {
+            plugin.getDebug().logException(e, "Failed to load global stats");
+        }
     }
 
     /**

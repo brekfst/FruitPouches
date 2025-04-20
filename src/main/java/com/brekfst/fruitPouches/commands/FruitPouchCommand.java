@@ -4,6 +4,7 @@ import com.brekfst.fruitPouches.FruitPouches;
 import com.brekfst.fruitPouches.gui.SkinShopGUI;
 import com.brekfst.fruitPouches.gui.UpgradeGUI;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -164,6 +165,7 @@ public class FruitPouchCommand implements CommandExecutor {
         }
     }
 
+
     /**
      * Handle the reload command
      *
@@ -176,13 +178,33 @@ public class FruitPouchCommand implements CommandExecutor {
             return true;
         }
 
+        sender.sendMessage(ChatColor.YELLOW + "Reloading FruitPouches configuration...");
+
+        // Save any pending data before reload
+        plugin.getPlayerDataManager().saveAllPlayerData();
+        plugin.getStatsManager().saveAllStats();
+
+        // Reload all configuration files
         plugin.getConfigManager().reloadAllConfigs();
+
+        // Clear and reload all managers that depend on configuration
         plugin.getCustomItemManager().loadCustomItems();
         plugin.getPouchManager().loadPouches();
         plugin.getEnchantmentManager().loadEnchantmentTypes();
+        plugin.getSkinManager().loadSkins();
         plugin.getMessageUtils().loadMessages();
+        plugin.getPriceManager().loadPrices(); // Reload prices
 
+        // Refresh all player pouches with the updated configuration
+        plugin.getPlayerDataManager().refreshAllPlayerPouches();
+
+        // Refresh any active GUIs
+        plugin.getGuiManager().closeAllGUIs();
+
+        // Final success message
         plugin.getMessageUtils().sendMessage(sender, "general.reload");
+        plugin.getDebug().log("Plugin configuration reloaded by " + sender.getName());
+
         return true;
     }
 

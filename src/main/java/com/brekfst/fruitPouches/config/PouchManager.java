@@ -39,8 +39,11 @@ public class PouchManager {
      * Load all pouches from the configuration
      */
     public void loadPouches() {
+        // Clear existing pouches first
         pouches.clear();
+        plugin.getDebug().log("Cleared existing pouch configurations");
 
+        // Load from configuration
         FileConfiguration config = plugin.getConfigManager().getPouchesConfig();
         ConfigurationSection pouchesSection = config.getConfigurationSection("pouches");
 
@@ -48,14 +51,18 @@ public class PouchManager {
             for (String id : pouchesSection.getKeys(false)) {
                 ConfigurationSection pouchSection = pouchesSection.getConfigurationSection(id);
                 if (pouchSection != null) {
-                    Pouch pouch = new Pouch(id, pouchSection);
-                    pouches.put(id, pouch);
-                    plugin.getDebug().log("Loaded pouch: " + id);
+                    try {
+                        Pouch pouch = new Pouch(id, pouchSection);
+                        pouches.put(id, pouch);
+                        plugin.getDebug().log("Loaded pouch configuration: " + id);
+                    } catch (Exception e) {
+                        plugin.getDebug().logException(e, "Failed to load pouch: " + id);
+                    }
                 }
             }
         }
 
-        plugin.getDebug().log("Loaded " + pouches.size() + " pouches");
+        plugin.getDebug().log("Loaded " + pouches.size() + " pouch configurations");
     }
 
     /**

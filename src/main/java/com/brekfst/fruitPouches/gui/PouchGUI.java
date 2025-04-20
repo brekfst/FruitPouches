@@ -621,8 +621,11 @@ public class PouchGUI implements Listener {
      * Add an item to the GUI with proper information
      */
     private void addItemToGUI(int slot, ItemStack item, String key) {
+        // Create a COPY of the item for display purposes only
+        // This ensures we don't modify the actual item in the pouch
         ItemStack displayItem = item.clone();
         ItemMeta meta = displayItem.getItemMeta();
+
         if (meta != null) {
             List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 
@@ -655,8 +658,11 @@ public class PouchGUI implements Listener {
         // Set a reasonable display amount (64 max)
         displayItem.setAmount(Math.min(item.getAmount(), 64));
 
+        // Add to GUI inventory and track the key
         inventory.setItem(slot, displayItem);
         itemSlots.put(slot, key);
+
+        plugin.getDebug().log("Added item to GUI: " + item.getType() + " x" + item.getAmount() + " with key: " + key);
     }
 
     /**
@@ -790,69 +796,145 @@ public class PouchGUI implements Listener {
      * @param isRightClick Whether right mouse button was used
      */
     private void handleItemClick(String itemKey, int slot, boolean isShiftClick, boolean isRightClick) {
-        // Get the item
-        Map<String, ItemStack> contents = pouch.getContents();
-        ItemStack item = contents.get(itemKey);
+        plugin.getDebug().log("Item click: " + itemKey + " in slot " + slot);
 
-        if (item == null) {
+        // Get the item from the pouch DIRECTLY
+        Map<String, ItemStack> currentContents = pouch.getContents();
+        if (!currentContents.containsKey(itemKey)) {
+            plugin.getDebug().log("CRITICAL ERROR: Item " + itemKey + " not found in pouch contents!");
+            player.sendMessage(ChatColor.RED + "Error: Item not found in pouch!");
+            initializeGUI(); // Refresh the GUI
             return;
         }
 
+        // Get a reference to the actual item in the pouch
+        ItemStack pouchItem = currentContents.get(itemKey);
+        if (pouchItem == null) {
+            plugin.getDebug().log("CRITICAL ERROR: Item " + itemKey + " is null in pouch contents!");
+            player.sendMessage(ChatColor.RED + "Error: Item is invalid!");
+            initializeGUI(); // Refresh the GUI
+            return;
+        }
+
+        // Log current state for debugging
+        plugin.getDebug().log("Before action - Item: " + pouchItem.getType() + ", Amount: " + pouchItem.getAmount());
+        plugin.getDebug().log("Before action - Pouch contents size: " + currentContents.size());
+
         // Handle right-click actions
         if (isRightClick) {
-            if (isConsumable(item)) {
-                consumeItem(item, itemKey);
-                return;
-            } else {
-                sellItem(item, itemKey);
-                return;
-            }
-        }
+            if (isConsumable(pouchItem)) {
+                // Make a copy for display purposes
+                ItemStack displayCopy = pouchItem.clone();
 
-        // Handle left-click (withdraw)
-        int amount = isShiftClick ? item.getAmount() : Math.min(item.getAmount(), 64);
-
-        ItemStack withdrawItem = item.clone();
-        withdrawItem.setAmount(amount);
-
-        HashMap<Integer, ItemStack> notAdded = player.getInventory().addItem(withdrawItem);
-
-        if (notAdded.isEmpty()) {
-            // Successfully added to inventory
-            if (amount >= item.getAmount()) {
-                contents.remove(itemKey);
-            } else {
-                item.setAmount(item.getAmount() - amount);
-            }
-
-            // Play success sound
-            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5f, 1.0f);
-
-            // Send feedback message
-            player.sendMessage(ChatColor.GREEN + "Withdrew " + amount + "x " + getItemDisplayName(withdrawItem));
-
-        } else {
-            // Couldn't add all items
-            int addedAmount = amount - notAdded.values().stream().mapToInt(ItemStack::getAmount).sum();
-
-            if (addedAmount > 0) {
-                // Reduce the amount in the pouch
-                if (item.getAmount() <= addedAmount) {
-                    contents.remove(itemKey);
+                // Consume one item
+                if (pouchItem.getAmount() <= 1) {
+                    // Remove the last item
+                    currentContents.remove(itemKey);
+                    plugin.getDebug().log("Removed last consumable item");
                 } else {
-                    item.setAmount(item.getAmount() - addedAmount);
+                    // Reduce stack by 1
+                    pouchItem.setAmount(pouchItem.getAmount() - 1);
+                    plugin.getDebug().log("Reduced consumable stack to " + pouchItem.getAmount());
                 }
 
-                // Send partial success message
-                player.sendMessage(ChatColor.YELLOW + "Withdrew " + addedAmount + "x " +
-                        getItemDisplayName(withdrawItem) + ". Your inventory is full!");
+                // Apply consume effects
+                if (displayCopy.getType().name().contains("POTION")) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_DRINK, 1.0f, 1.0f);
+                    player.sendMessage(ChatColor.GREEN + "Consumed " + getItemDisplayName(displayCopy));
+                    player.spawnParticle(Particle.ENCHANT, player.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.1);
+                } else if (displayCopy.getType().isEdible()) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EAT, 1.0f, 1.0f);
+                    player.sendMessage(ChatColor.GREEN + "Consumed " + getItemDisplayName(displayCopy));
+                    player.spawnParticle(Particle.CRIT, player.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.1);
+                }
             } else {
-                // Couldn't add any items
-                player.sendMessage(ChatColor.RED + "Your inventory is full!");
+                // Selling the item
+                if (!plugin.getVaultHook().isEnabled()) {
+                    player.sendMessage(ChatColor.RED + "Cannot sell items - economy is not enabled!");
+                    return;
+                }
+
+                // Calculate value
+                int amount = pouchItem.getAmount();
+                double totalValue = plugin.getVaultHook().getSellValue(pouchItem) * amount;
+
+                if (totalValue <= 0) {
+                    player.sendMessage(ChatColor.RED + "This item has no value!");
+                    return;
+                }
+
+                // Make a copy for display purposes
+                ItemStack displayCopy = pouchItem.clone();
+
+                // Remove the item from the pouch
+                currentContents.remove(itemKey);
+                plugin.getDebug().log("Removed sold item from pouch");
+
+                // Add money to player
+                plugin.getVaultHook().depositMoney(player, totalValue);
+
+                // Notify player
+                player.sendMessage(ChatColor.GREEN + "Sold " + amount + "x " + getItemDisplayName(displayCopy) +
+                        " for " + plugin.getVaultHook().formatMoney(totalValue));
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.0f);
+            }
+        } else {
+            // Handle left-click (withdraw)
+            int withdrawAmount = isShiftClick ? pouchItem.getAmount() : Math.min(pouchItem.getAmount(), 64);
+            plugin.getDebug().log("Withdrawing " + withdrawAmount + " items");
+
+            // Create a clone of the item with the correct amount for withdrawal
+            ItemStack withdrawItem = pouchItem.clone();
+            withdrawItem.setAmount(withdrawAmount);
+
+            // Try to add the item to player inventory
+            HashMap<Integer, ItemStack> notAdded = player.getInventory().addItem(withdrawItem);
+
+            if (notAdded.isEmpty()) {
+                // Successfully added all to inventory
+                if (withdrawAmount >= pouchItem.getAmount()) {
+                    // Remove the entire stack
+                    currentContents.remove(itemKey);
+                    plugin.getDebug().log("Removed entire stack from pouch");
+                } else {
+                    // Reduce the stack
+                    pouchItem.setAmount(pouchItem.getAmount() - withdrawAmount);
+                    plugin.getDebug().log("Reduced stack to " + pouchItem.getAmount());
+                }
+
+                // Play success sound
+                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5f, 1.0f);
+
+                // Send feedback
+                player.sendMessage(ChatColor.GREEN + "Withdrew " + withdrawAmount + "x " + getItemDisplayName(withdrawItem));
+            } else {
+                // Couldn't add all items
+                int addedAmount = withdrawAmount - notAdded.values().stream().mapToInt(ItemStack::getAmount).sum();
+
+                if (addedAmount > 0) {
+                    // Reduce the amount in the pouch by what was actually added
+                    if (pouchItem.getAmount() <= addedAmount) {
+                        currentContents.remove(itemKey);
+                        plugin.getDebug().log("Removed entire stack after partial withdrawal");
+                    } else {
+                        pouchItem.setAmount(pouchItem.getAmount() - addedAmount);
+                        plugin.getDebug().log("Reduced stack to " + pouchItem.getAmount() + " after partial withdrawal");
+                    }
+
+                    // Send partial success message
+                    player.sendMessage(ChatColor.YELLOW + "Withdrew " + addedAmount + "x " +
+                            getItemDisplayName(withdrawItem) + ". Your inventory is full!");
+                } else {
+                    // Couldn't add any items
+                    player.sendMessage(ChatColor.RED + "Your inventory is full!");
+                }
             }
         }
 
-        // Save the pouch data
+        // Log final state
+        plugin.getDebug().log("After action - Pouch contents size: " + currentContents.size());
+
+        // Save the pouch data IMMEDIATELY
         plugin.getPlayerDataManager().savePlayerPouch(player.getUniqueId(), pouch);
 
         // Refresh the GUI
@@ -876,12 +958,22 @@ public class PouchGUI implements Listener {
         Material type = item.getType();
         Map<String, ItemStack> contents = pouch.getContents();
 
-        // Remove one item
+        // Verify the item still exists in the pouch
+        if (!contents.containsKey(itemKey)) {
+            player.sendMessage(ChatColor.RED + "This item no longer exists in the pouch!");
+            initializeGUI(); // Refresh the GUI
+            return;
+        }
+
+        // Remove one item FIRST
         if (item.getAmount() <= 1) {
             contents.remove(itemKey);
         } else {
             item.setAmount(item.getAmount() - 1);
         }
+
+        // IMMEDIATELY save the pouch data
+        plugin.getPlayerDataManager().savePlayerPouch(player.getUniqueId(), pouch);
 
         // Apply appropriate effects
         if (type.name().contains("POTION")) {
@@ -900,9 +992,6 @@ public class PouchGUI implements Listener {
             player.spawnParticle(Particle.CRIT, player.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.1, item);
         }
 
-        // Save the pouch data
-        plugin.getPlayerDataManager().savePlayerPouch(player.getUniqueId(), pouch);
-
         // Refresh the GUI
         initializeGUI();
     }
@@ -918,6 +1007,14 @@ public class PouchGUI implements Listener {
         }
 
         Map<String, ItemStack> contents = pouch.getContents();
+
+        // Verify the item still exists in the pouch
+        if (!contents.containsKey(itemKey)) {
+            player.sendMessage(ChatColor.RED + "This item no longer exists in the pouch!");
+            initializeGUI(); // Refresh the GUI
+            return;
+        }
+
         int amount = item.getAmount();
         double totalValue = plugin.getVaultHook().getSellValue(item) * amount;
 
@@ -926,19 +1023,19 @@ public class PouchGUI implements Listener {
             return;
         }
 
-        // Remove the item
+        // Remove the item FIRST
         contents.remove(itemKey);
 
-        // Add money to player
+        // THEN add money to player
         plugin.getVaultHook().depositMoney(player, totalValue);
+
+        // IMMEDIATELY save the pouch data
+        plugin.getPlayerDataManager().savePlayerPouch(player.getUniqueId(), pouch);
 
         // Notify player
         player.sendMessage(ChatColor.GREEN + "Sold " + amount + "x " + getItemDisplayName(item) +
                 " for " + plugin.getVaultHook().formatMoney(totalValue));
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.0f);
-
-        // Save the pouch data
-        plugin.getPlayerDataManager().savePlayerPouch(player.getUniqueId(), pouch);
 
         // Refresh the GUI
         initializeGUI();
