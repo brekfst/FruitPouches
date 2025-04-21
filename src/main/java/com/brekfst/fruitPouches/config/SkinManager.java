@@ -102,18 +102,28 @@ public class SkinManager {
         return pouchSkins.containsKey(skinId);
     }
 
-    /**
-     * Apply a skin to a pouch
-     *
-     * @param player The player
-     * @param pouchId The pouch ID
-     * @param skinId The skin ID
-     * @return true if the skin was applied
-     */
     public boolean applySkin(Player player, String pouchId, String skinId) {
         // Check if the skin exists
         if (!skinExists(pouchId, skinId)) {
             plugin.getMessageUtils().sendMessage(player, "skins.invalid-skin", "skin", skinId);
+            return false;
+        }
+
+        // Find the pouch in the player's inventory
+        ItemStack pouchItem = null;
+        int pouchSlot = -1;
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item != null && Pouch.isPouchOfType(plugin, item, pouchId)) {
+                pouchItem = item;
+                pouchSlot = i;
+                break;
+            }
+        }
+
+        if (pouchItem == null) {
+            plugin.getMessageUtils().sendMessage(player, "pouches.invalid-pouch", "pouch", pouchId);
             return false;
         }
 
@@ -148,29 +158,11 @@ public class SkinManager {
             plugin.getMessageUtils().sendMessage(player, "skins.purchased", "skin", skin.getName(), "pouch", plugin.getPouchManager().getPouch(pouchId).getDisplayName());
         }
 
-        // Find the pouch in the player's inventory
-        ItemStack pouchItem = null;
-        int pouchSlot = -1;
-
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item != null && Pouch.isPouchOfType(plugin, item, pouchId)) {
-                pouchItem = item;
-                pouchSlot = i;
-                break;
-            }
-        }
-
-        if (pouchItem == null) {
-            plugin.getMessageUtils().sendMessage(player, "pouches.invalid-pouch", "pouch", pouchId);
-            return false;
-        }
-
         // Get the player's pouch data
         Pouch pouch = plugin.getPlayerDataManager().getPlayerPouch(player.getUniqueId(), pouchId);
 
         if (pouch == null) {
-            plugin.getMessageUtils().sendMessage(player, "pouches.invalid-pouch", "pouch", pouchId);
+            plugin.getDebug().log("Failed to get player pouch data for " + player.getName() + ", pouch: " + pouchId);
             return false;
         }
 

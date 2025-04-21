@@ -205,16 +205,16 @@ public class SkinShopGUI implements Listener {
         HandlerList.unregisterAll(this);
     }
 
-    /**
-     * Handle a skin click
-     *
-     * @param skinId The skin ID
-     */
     private void handleSkinClick(String skinId) {
-        // Apply the skin
-        plugin.getSkinManager().applySkin(player, pouchId, skinId);
+        // The issue is here - let's fix it by doing a more thorough check
+        boolean applied = plugin.getSkinManager().applySkin(player, pouchId, skinId);
 
-        // Close the inventory
-        Bukkit.getScheduler().runTaskLater(plugin, player::closeInventory, 1L);
+        if (!applied) {
+            player.sendMessage(ChatColor.RED + "Failed to apply skin. Make sure you have the pouch in your inventory.");
+            return;
+        }
+
+        // Close the inventory with a short delay to allow the player to see the success message
+        Bukkit.getScheduler().runTaskLater(plugin, player::closeInventory, 20L); // 1 second delay
     }
 }

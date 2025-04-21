@@ -87,11 +87,7 @@ public class PlayerDataManager extends DataManager {
         });
     }
 
-    /**
-     * Save a player's pouch data
-     *
-     * @param playerId The player UUID
-     */
+    // In PlayerDataManager.java, modify savePlayerData:
     public void savePlayerData(UUID playerId) {
         Map<String, Pouch> pouches = playerPouches.get(playerId);
 
@@ -122,10 +118,13 @@ public class PlayerDataManager extends DataManager {
                     skinsSection.set(entry.getKey(), new ArrayList<>(entry.getValue()));
                 }
 
-                // Backup before saving if enabled
-                if (plugin.getConfigManager().isAutoBackupEnabled()) {
-                    createBackup(file);
-                }
+                // Only backup during server shutdown or explicit command
+                // Remove the automatic backup that happens on every save
+            /*
+            if (plugin.getConfigManager().isAutoBackupEnabled()) {
+                createBackup(file);
+            }
+            */
 
                 saveConfig(config, file);
 

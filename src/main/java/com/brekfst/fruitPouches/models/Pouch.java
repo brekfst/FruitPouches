@@ -272,6 +272,43 @@ public class Pouch {
                 }
             }
 
+            // Add what this pouch can pick up (NEW)
+            loreList.add("");
+            loreList.add(ChatColor.YELLOW + "This pouch collects:");
+            // Limited to first 5 items to avoid too long lore
+            int count = 0;
+            for (String pickupItemName : pickupItems) {
+                if (count >= 5) {
+                    loreList.add(ChatColor.GRAY + "... and " + (pickupItems.size() - 5) + " more item types");
+                    break;
+                }
+
+                // Format item name nicely
+                String itemName = pickupItemName;
+                if (pickupItemName.startsWith("custom:")) {
+                    CustomItem customItem = plugin.getCustomItemManager().getCustomItem(pickupItemName.substring(7));
+                    if (customItem != null) {
+                        itemName = customItem.getDisplayName();
+                    }
+                } else {
+                    String[] parts = pickupItemName.split("_");
+                    StringBuilder formatted = new StringBuilder();
+                    for (int i = 0; i < parts.length; i++) {
+                        if (i > 0) formatted.append(" ");
+                        if (parts[i].length() > 0) {
+                            formatted.append(parts[i].substring(0, 1).toUpperCase());
+                            if (parts[i].length() > 1) {
+                                formatted.append(parts[i].substring(1).toLowerCase());
+                            }
+                        }
+                    }
+                    itemName = formatted.toString();
+                }
+
+                loreList.add(ChatColor.GRAY + " • " + ChatColor.WHITE + itemName);
+                count++;
+            }
+
             // Add stats info if tracking is enabled
             if (trackStats) {
                 loreList.add("");

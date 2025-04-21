@@ -142,15 +142,62 @@ public class PouchGUI implements Listener {
         }
     }
 
-    /**
-     * Initialize a simple layout with organized items
-     *
-     * @param contents The pouch contents
-     */
     private void initializeSimpleLayout(Map<String, ItemStack> contents) {
-        int slot = 10; // Start after border, in the second row
+        // Create a map of all possible items this pouch can collect
+        Map<String, ItemStack> possibleItems = new HashMap<>();
 
-        if (contents.isEmpty()) {
+        // Add all possible items with zero count initially
+        for (String pickupItem : pouch.getPickupItems()) {
+            if (pickupItem.startsWith("custom:")) {
+                String customId = pickupItem.substring(7);
+                CustomItem customItem = plugin.getCustomItemManager().getCustomItem(customId);
+                if (customItem != null) {
+                    ItemStack item = customItem.toItemStack();
+                    item.setAmount(0);
+                    possibleItems.put(getItemIdentifier(item), item);
+                }
+            } else {
+                try {
+                    Material material = Material.valueOf(pickupItem);
+                    ItemStack item = new ItemStack(material);
+                    item.setAmount(0);
+                    possibleItems.put(getItemIdentifier(item), item);
+                } catch (IllegalArgumentException e) {
+                    // Handle wildcards (like *_ORE) by finding all matching materials
+                    if (pickupItem.contains("*")) {
+                        String pattern = pickupItem.replace("*", "");
+                        for (Material material : Material.values()) {
+                            String materialName = material.name();
+                            if ((pickupItem.startsWith("*") && materialName.endsWith(pattern)) ||
+                                    (pickupItem.endsWith("*") && materialName.startsWith(pattern)) ||
+                                    (pickupItem.startsWith("*") && pickupItem.endsWith("*") && materialName.contains(pattern))) {
+                                ItemStack item = new ItemStack(material);
+                                item.setAmount(0);
+                                possibleItems.put(getItemIdentifier(item), item);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update quantities from actual contents
+        for (Map.Entry<String, ItemStack> entry : contents.entrySet()) {
+            ItemStack item = entry.getValue();
+            String itemType = getItemIdentifier(item);
+
+            if (possibleItems.containsKey(itemType)) {
+                // Add to existing item
+                ItemStack existingItem = possibleItems.get(itemType);
+                existingItem.setAmount(existingItem.getAmount() + item.getAmount());
+            } else {
+                // This shouldn't happen often but handle it just in case
+                possibleItems.put(itemType, item.clone());
+            }
+        }
+
+        // Now display all possible items
+        if (possibleItems.isEmpty()) {
             // Show empty message
             ItemStack emptyItem = ItemUtils.createItem(
                     Material.BARRIER,
@@ -164,35 +211,15 @@ public class PouchGUI implements Listener {
             return;
         }
 
-        // Group similar items
-        Map<String, Integer> itemCounts = new HashMap<>();
-        Map<String, ItemStack> uniqueItems = new HashMap<>();
-        Map<String, String> itemKeys = new HashMap<>(); // Store the original key
-
-        for (Map.Entry<String, ItemStack> entry : contents.entrySet()) {
-            ItemStack item = entry.getValue();
-            String key = entry.getKey();
-            String itemType = getItemIdentifier(item);
-
-            if (!itemCounts.containsKey(itemType)) {
-                itemCounts.put(itemType, item.getAmount());
-                uniqueItems.put(itemType, item.clone());
-                itemKeys.put(itemType, key); // Remember the first key for this type
-            } else {
-                itemCounts.put(itemType, itemCounts.get(itemType) + item.getAmount());
-            }
-        }
-
         // Add items to GUI
-        for (String itemType : uniqueItems.keySet()) {
-            ItemStack item = uniqueItems.get(itemType);
-            String key = itemKeys.get(itemType);
-            int count = itemCounts.get(itemType);
+        int slot = 10; // Start after border, in the second row
+        for (Map.Entry<String, ItemStack> entry : possibleItems.entrySet()) {
+            ItemStack item = entry.getValue();
 
-            // Update item amount
-            item.setAmount(count);
+            // Generate a unique key for this display item
+            String key = generateDisplayKey(item);
 
-            // Add to GUI with unified display
+            // Add to GUI
             addItemToGUI(slot, item, key);
 
             // Move to next slot, skipping borders
@@ -205,6 +232,11 @@ public class PouchGUI implements Listener {
                 break;
             }
         }
+    }
+
+    // Helper method to generate a display key
+    private String generateDisplayKey(ItemStack item) {
+        return item.getType().name() + "_display";
     }
 
     /**
@@ -617,12 +649,8 @@ public class PouchGUI implements Listener {
         return id.toString();
     }
 
-    /**
-     * Add an item to the GUI with proper information
-     */
     private void addItemToGUI(int slot, ItemStack item, String key) {
         // Create a COPY of the item for display purposes only
-        // This ensures we don't modify the actual item in the pouch
         ItemStack displayItem = item.clone();
         ItemMeta meta = displayItem.getItemMeta();
 
@@ -635,14 +663,20 @@ public class PouchGUI implements Listener {
             }
 
             // Add action information
-            lore.add(ChatColor.YELLOW + "Left-Click: " + ChatColor.GRAY + "Withdraw 64");
-            lore.add(ChatColor.YELLOW + "Shift+Left-Click: " + ChatColor.GRAY + "Withdraw All");
+            if (item.getAmount() > 0) {
+                lore.add(ChatColor.YELLOW + "Left-Click: " + ChatColor.GRAY + "Withdraw 64");
+                lore.add(ChatColor.YELLOW + "Shift+Left-Click: " + ChatColor.GRAY + "Withdraw All");
 
-            // Add right-click action based on item type
-            if (isConsumable(item)) {
-                lore.add(ChatColor.YELLOW + "Right-Click: " + ChatColor.GRAY + "Consume");
+                // Add right-click action based on item type
+                if (isConsumable(item)) {
+                    lore.add(ChatColor.YELLOW + "Right-Click: " + ChatColor.GRAY + "Consume");
+                } else {
+                    lore.add(ChatColor.YELLOW + "Right-Click: " + ChatColor.GRAY + "Sell All");
+                }
             } else {
-                lore.add(ChatColor.YELLOW + "Right-Click: " + ChatColor.GRAY + "Sell All");
+                // For items with zero count
+                lore.add(ChatColor.GRAY + "This pouch can collect this item");
+                lore.add(ChatColor.GRAY + "None collected yet");
             }
 
             // Show total count if more than max stack size
@@ -655,8 +689,12 @@ public class PouchGUI implements Listener {
             displayItem.setItemMeta(meta);
         }
 
-        // Set a reasonable display amount (64 max)
-        displayItem.setAmount(Math.min(item.getAmount(), 64));
+        // Set a reasonable display amount (64 max for items with count, 1 for zero count)
+        if (item.getAmount() > 0) {
+            displayItem.setAmount(Math.min(item.getAmount(), 64));
+        } else {
+            displayItem.setAmount(1); // Show 1 for display purposes
+        }
 
         // Add to GUI inventory and track the key
         inventory.setItem(slot, displayItem);

@@ -143,13 +143,24 @@ public class FruitPouches extends JavaPlugin {
 
     private void setupDataSavingTask() {
         long saveInterval = getConfig().getLong("data.save-interval", 300); // Default: 5 minutes
+        long backupInterval = getConfig().getLong("data.backup-interval", 3600); // Default: 1 hour
 
+        // Regular saving task
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             debug.log("Running scheduled data save...");
             playerDataManager.saveAllPlayerData();
             statsManager.saveAllStats();
             debug.log("Scheduled data save completed.");
         }, saveInterval * 20L, saveInterval * 20L);
+
+        // Less frequent backup task
+        if (getConfig().getBoolean("data.enable-backups", true)) {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+                debug.log("Running scheduled data backup...");
+                configManager.createAllBackups();
+                debug.log("Scheduled data backup completed.");
+            }, backupInterval * 20L, backupInterval * 20L);
+        }
     }
 
     private void createConfigFile(String fileName) {
